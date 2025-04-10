@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <title>Órarend szerkesztés</title>
+  <style>
+    table { border-collapse: collapse; width: 100%;}
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center;}
+    input { width: auto; }
+    h1{ text-align: center;}
+  </style>
+</head>
+<body>
+  <h1>Órarend</h1>
+  <form id="scheduleForm">
+    <table id="scheduleTable"></table>
+    <button type="submit">💾 Minden mentése</button>
+  </form>
+
+  <script>
+    let scheduleData = []
+
+    async function fetchSchedule() {
+      const res = await fetch('http:/localhost:3000/schedule')
+      const data = await res.json()
+      scheduleData = data
+      renderVerticalSchedule(data)
+    }
+
+    function renderVerticalSchedule(data) {
+      const table = document.getElementById('scheduleTable')
+      
+      // Fejléc: napok
+      const headerRow = document.createElement('tr')
+      headerRow.innerHTML = `<th>Óra</th>` + data.map(d => `<th>${d.day}</th>`).join('')
+      table.innerHTML = ''
+      table.appendChild(headerRow)
+
+      // Sorok: 1. óra - 9. óra
+      for (let i = 1; i <= 9; i++) {
+        const row = document.createElement('tr')
+        row.innerHTML = `<td>${i}. óra</td>` + data.map(d => {
+          return `<td><input name="ora${i}-${d.id}" value="${d[`ora${i}`]}" /></td>`
+        }).join('')
+        table.appendChild(row)
+      }
+    }
+
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const form = new FormData(e.target)
+
+      for (const day of scheduleData) {
+        const updated = { day: day.day }
+        for (let i = 1; i <= 9; i++) {
+          updated[`ora${i}`] = form.get(`ora${i}-${day.id}`) || '-'
+        }
+
+        await fetch(`/api/schedule/${day.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        })
+      }
+
+      alert('Minden változás mentve ✅')
+      fetchSchedule()
+    })
+
+    fetchSchedule()
+    </Script>
+</body>
+</html>
