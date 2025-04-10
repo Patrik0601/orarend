@@ -11,32 +11,25 @@
   </style>
 </head>
 <body>
-  <h1>Órarend</h1>
+  <h1>Órarend szerkesztése</h1>
   <form id="scheduleForm">
     <table id="scheduleTable"></table>
-    <button type="submit">💾 Minden mentése</button>
+    <button type="submit">Minden mentése</button>
   </form>
-
   <script>
     let scheduleData = []
-
     async function fetchSchedule() {
       const res = await fetch('http:/localhost:3000/schedule')
       const data = await res.json()
       scheduleData = data
       renderVerticalSchedule(data)
     }
-
     function renderVerticalSchedule(data) {
       const table = document.getElementById('scheduleTable')
-      
-      // Fejléc: napok
       const headerRow = document.createElement('tr')
       headerRow.innerHTML = `<th>Óra</th>` + data.map(d => `<th>${d.day}</th>`).join('')
       table.innerHTML = ''
       table.appendChild(headerRow)
-
-      // Sorok: 1. óra - 9. óra
       for (let i = 1; i <= 9; i++) {
         const row = document.createElement('tr')
         row.innerHTML = `<td>${i}. óra</td>` + data.map(d => {
@@ -49,25 +42,19 @@
     document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
       e.preventDefault()
       const form = new FormData(e.target)
-
       for (const day of scheduleData) {
-        const updated = { day: day.day }
         for (let i = 1; i <= 9; i++) {
-          updated[`ora${i}`] = form.get(`ora${i}-${day.id}`) || '-'
+          day[`ora${i}`] = form.get(`ora${i}-${day.id}`) || '-'
         }
-
-        await fetch(`/api/schedule/${day.id}`, {
+        await fetch(`http:/localhost:3000/schedule/${day.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updated)
+          body: JSON.stringify(day)
         })
       }
-
-      alert('Minden változás mentve ✅')
-      fetchSchedule()
+      alert('Módosítások elmentve')
     })
-
     fetchSchedule()
-    </Script>
+  </script>
 </body>
 </html>
