@@ -14,7 +14,6 @@ app.get('/schedule', async (req, res) => {
     res.json(rows)
 })
 
-
 app.post('/schedule', async (req, res) => {
     const { day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9 } = req.body
     await dbRun(
@@ -22,11 +21,6 @@ app.post('/schedule', async (req, res) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9]
     )
-    res.sendStatus(200)
-})
-
-app.delete('/schedule/:id', async (req, res) => {
-    await dbRun('DELETE FROM lessons WHERE id = ?', [req.params.id])
     res.sendStatus(200)
 })
 
