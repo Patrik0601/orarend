@@ -14,16 +14,6 @@ app.get('/schedule', async (req, res) => {
     res.json(rows)
 })
 
-app.post('/schedule', async (req, res) => {
-    const { day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9 } = req.body
-    await dbRun(
-        `INSERT INTO lessons (day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9]
-    )
-    res.sendStatus(200)
-})
-
 app.put('/schedule/:id', async (req, res) => {
     const { day, ora1, ora2, ora3, ora4, ora5, ora6, ora7, ora8, ora9 } = req.body
     await dbRun(
